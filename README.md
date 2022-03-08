@@ -3,7 +3,7 @@ IBOV_HCI stands form ibovespa(IBOV) historical(H) composition(C) index(I).
 
 ## Objective 
 
-This project goal is to keep track of the companies that have been used to build the ibovespa index along history. And as a consequence extract valuable information from such data.
+Keep track of the companies that have been used to build the ibovespa index along history. And as a consequence extract valuable information from such data.
 
 ## IBOV historic composition
 
