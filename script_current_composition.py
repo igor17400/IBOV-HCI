@@ -73,16 +73,18 @@ class IBOVIndex():
         symbols = df_latest_index["symbol"].tolist()
         date_first_added = {}
         for file in os.listdir(path):
-            if(file.split('.')[1] == 'csv'):
+            if(file.split('.')[1] == 'csv' and 'date' not in file):
                 df = pd.read_csv(path + file, encoding='utf8')
                 for symbol in df["symbol"].tolist():
                     if symbol in symbols and symbol not in date_first_added:
                         date_first_added[symbol] = file.split(".")[0]
 
         df = pd.DataFrame.from_dict(date_first_added, orient='index', columns=['Date First Added'])
+        df.reset_index(inplace=True)
+        df.rename(columns = {'index':'symbol'}, inplace = True)
         df.to_csv(path + 'date_first_added_' + self.year + '_' + self.quarter + 'Q.csv')
 
 if __name__ == "__main__":
     ibov = IBOVIndex(index_name='IBOV')
-    ibov.get_first_added()
     # ibov.save_ibov_current_index_csv()
+    ibov.get_first_added()
