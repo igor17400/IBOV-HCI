@@ -19,6 +19,9 @@ class IBOVIndex():
     def __init__(self, index_name: str):
         self.index_name = index_name
         self._target_url = B3_URL.format(index_code="IBOV")
+        self.today = datetime.date.today()
+        self.quarter = str(pd.Timestamp(self.today).quarter)
+        self.year = str(self.today.year)
 
     def get_current_index_composition(self) -> pd.DataFrame:
         logger.info("Accessing {} index website...".format(self.index_name))
@@ -60,13 +63,26 @@ class IBOVIndex():
 
     def save_ibov_current_index_csv(self):
         df_index = self.get_current_index_composition()
-        df = pd.DataFrame({"código": df_index.index.tolist()})
+        df = pd.DataFrame({"symbol": df_index.index.tolist()})
 
-        today = datetime.date.today()
-        quarter = str(pd.Timestamp(today).quarter)
-        year = str(today.year)
-        df.to_csv('./historic_composition/' + year + '_' + quarter + 'Q.csv')
+        df.to_csv('./historic_composition/' + self.year + '_' + self.quarter + 'Q.csv')
+
+    def get_first_added(self):
+        path = str(CUR_DIR) + "/historic_composition/"
+        df_latest_index = pd.read_csv(path + self.year + '_' + self.quarter + 'Q.csv')
+        symbols = df_latest_index["symbol"].tolist()
+        date_first_added = {}
+        for file in os.listdir(path):
+            if(file.split('.')[1] == 'csv'):
+                df = pd.read_csv(path + file, encoding='utf8')
+                for symbol in df["symbol"].tolist():
+                    if symbol in symbols and symbol not in date_first_added:
+                        date_first_added[symbol] = file.split(".")[0]
+
+        df = pd.DataFrame.from_dict(date_first_added, orient='index', columns=['Date First Added'])
+        df.to_csv(path + 'date_first_added_' + self.year + '_' + self.quarter + 'Q.csv')
 
 if __name__ == "__main__":
     ibov = IBOVIndex(index_name='IBOV')
-    ibov.save_ibov_current_index_csv()
+    ibov.get_first_added()
+    # ibov.save_ibov_current_index_csv()
